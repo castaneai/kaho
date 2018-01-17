@@ -71,7 +71,7 @@ func uploadHandler(c *gin.Context) {
 
 func generateServingUrl(ctx context.Context, result *UploadResult, isSecureURL bool) (string, error) {
 	// NOTE: https://cloud.google.com/appengine/docs/standard/go/blobstore/reference#BlobKeyForFile
-	gsURL := fmt.Sprint("/gs/%s/%s", result.BucketName, result.ObjectName)
+	gsURL := fmt.Sprintf("/gs/%s/%s", result.BucketName, result.ObjectName)
 	blobKey, err := blobstore.BlobKeyForFile(ctx, gsURL)
 	if err != nil {
 		return "", err
