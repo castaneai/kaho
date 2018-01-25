@@ -90,7 +90,7 @@ func upload(ctx context.Context, f io.ReadSeeker) (*UploadResult, error) {
 		return nil, err
 	}
 	buf := make([]byte, 512)
-	n, err := io.ReadFull(f, buf)
+	n, err := io.ReadAtLeast(f, buf, 1)
 	if err != nil {
 		return nil, err
 	}
