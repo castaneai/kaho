@@ -1,8 +1,6 @@
 runtime: go
-api_version: go1.8
-application: morning-tide
+api_version: go1.9
 service: kaho
-version: 1
 
 handlers:
 - url: /.*
