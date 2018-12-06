@@ -6,7 +6,7 @@ kaho
 ## Usage
 
 ```sh
-curl -X POST https://kaho/upload -F "@/path/to/image.png;type=image/png"
+curl -X POST https://kaho/upload -F "file=@/path/to/image.png;type=image/png"
 ```
 
 ## Deploy

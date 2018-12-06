@@ -42,6 +42,8 @@ func uploadHandler(c *gin.Context) {
 
 	f, err := c.FormFile("file")
 	if err != nil {
+		handleError(ctx, c, err)
+		return
 	}
 
 	r, err := f.Open()
