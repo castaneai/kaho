@@ -5,6 +5,7 @@ import (
 	"context"
 	"fmt"
 	"github.com/gin-gonic/gin"
+	"github.com/gin-contrib/cors"
 	"github.com/pkg/errors"
 	"github.com/satori/go.uuid"
 	"google.golang.org/appengine"
@@ -26,6 +27,7 @@ type UploadResult struct {
 
 func init() {
 	r := gin.Default()
+	r.Use(cors.Default())
 	r.POST("/upload", uploadHandler)
 	http.Handle("/", r)
 }
