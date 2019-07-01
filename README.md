@@ -12,12 +12,5 @@ curl -X POST https://kaho/upload -F "file=@/path/to/image.png;type=image/png"
 ## Deploy
 
 ```sh
-goapp deploy -application [PROJECT_ID] -version [VERSION] appengine/app.yaml
-```
-
-## Development
-
-```
-dep ensure
-goapp serve appengine/app.yaml
+gcloud app deploy 
 ```

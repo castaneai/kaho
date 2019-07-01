@@ -1,19 +1,20 @@
 package main
 
 import (
-	"cloud.google.com/go/storage"
 	"context"
+	"errors"
 	"fmt"
-	"github.com/gin-gonic/gin"
-	"github.com/gin-contrib/cors"
-	"github.com/pkg/errors"
-	"github.com/satori/go.uuid"
-	"google.golang.org/appengine"
+	"log"
+
+	"cloud.google.com/go/storage"
+	"github.com/google/uuid"
 	"google.golang.org/appengine/blobstore"
 	"google.golang.org/appengine/image"
-	"google.golang.org/appengine/log"
+
 	"io"
 	"net/http"
+
+	"google.golang.org/appengine"
 )
 
 const (
@@ -25,52 +26,46 @@ type UploadResult struct {
 	ObjectName string
 }
 
-func init() {
-	r := gin.Default()
-	r.Use(cors.Default())
-	r.POST("/upload", uploadHandler)
-	http.Handle("/", r)
+func main() {
+	http.HandleFunc("/upload", uploadHandler)
+	appengine.Main()
 }
 
-func handleError(ctx context.Context, gin *gin.Context, err error) {
-	log.Errorf(ctx, "[err] %+v", errors.WithStack(err))
-	gin.AbortWithError(http.StatusInternalServerError, err)
+func handleError(w http.ResponseWriter, err error) {
+	log.Printf("[err] %+v", err)
+	w.WriteHeader(http.StatusInternalServerError)
+	w.Write([]byte("error"))
 }
 
-func uploadHandler(c *gin.Context) {
-	ctx := appengine.NewContext(c.Request)
-
-	f, err := c.FormFile("file")
+func uploadHandler(w http.ResponseWriter, r *http.Request) {
+	f, _, err := r.FormFile("file")
 	if err != nil {
-		handleError(ctx, c, err)
+		handleError(w, err)
 		return
 	}
-
-	r, err := f.Open()
-	if err != nil {
-		handleError(ctx, c, err)
-		return
-	}
+	defer f.Close()
 
 	if appengine.IsDevAppServer() {
-		handleError(ctx, c, errors.New("kaho cannot run on development server"))
+		handleError(w, errors.New("kaho cannot run on development server"))
 		return
 	}
 
-	res, err := upload(ctx, r)
+	ctx := r.Context()
+	res, err := upload(ctx, f)
 	if err != nil {
-		handleError(ctx, c, err)
+		handleError(w, err)
 		return
 	}
 
 	servingURL, err := generateServingUrl(ctx, res, true)
 	if err != nil {
-		handleError(ctx, c, err)
+		handleError(w, err)
 		return
 	}
 
-	log.Infof(ctx, "success upload: %s", servingURL)
-	c.Redirect(http.StatusSeeOther, servingURL)
+	log.Printf("success upload: %s", servingURL)
+	w.Header().Set("Location", servingURL)
+	w.WriteHeader(http.StatusSeeOther)
 }
 
 func generateServingUrl(ctx context.Context, result *UploadResult, isSecureURL bool) (string, error) {
@@ -112,7 +107,7 @@ func upload(ctx context.Context, f io.ReadSeeker) (*UploadResult, error) {
 }
 
 func generateFileID() (string, error) {
-	uu, err := uuid.NewV4()
+	uu, err := uuid.NewRandom()
 	if err != nil {
 		return "", err
 	}

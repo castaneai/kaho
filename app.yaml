@@ -1,0 +1,7 @@
+runtime: go111
+service: kaho
+
+handlers:
+  - url: /.*
+    script: auto
+    secure: always
