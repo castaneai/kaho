@@ -18,7 +18,7 @@ import (
 )
 
 const (
-	bucketName = "cafe-stile"
+	bucketName = "libeccio-kaho"
 )
 
 type UploadResult struct {
