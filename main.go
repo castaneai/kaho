@@ -38,6 +38,8 @@ func handleError(w http.ResponseWriter, err error) {
 }
 
 func uploadHandler(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Access-Control-Allow-Origin", "*")
+
 	f, _, err := r.FormFile("file")
 	if err != nil {
 		handleError(w, err)
